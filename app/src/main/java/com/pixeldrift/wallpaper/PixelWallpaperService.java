@@ -1,6 +1,7 @@
 package com.pixeldrift.wallpaper;
 
-import android.annotation.RequiresApi;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.wallpaper.WallpaperDescription;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -589,7 +590,10 @@ public final class PixelWallpaperService extends WallpaperService {
         }
     }
 
-    @RequiresApi(34)
+    // Private implementation detail, instantiated only by the guarded checks in onCreateEngine().
+    // Keep the app dependency-free instead of adding AndroidX solely for its RequiresApi marker.
+    @SuppressLint("UseRequiresApi")
+    @TargetApi(34)
     private class PixelEngineApi34 extends PixelEngine {
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
@@ -619,7 +623,8 @@ public final class PixelWallpaperService extends WallpaperService {
         }
     }
 
-    @RequiresApi(36)
+    @SuppressLint("UseRequiresApi")
+    @TargetApi(36)
     private final class PixelEngineApi36 extends PixelEngineApi34 {
         @Override
         public WallpaperDescription onApplyWallpaper(int which) {
