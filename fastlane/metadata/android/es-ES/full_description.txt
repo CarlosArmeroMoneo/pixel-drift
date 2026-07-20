@@ -1,0 +1,20 @@
+Convierte una hoja de sprites estática en formato PNG o WebP en un fondo de pantalla animado de pixel art.
+
+Importa la imagen mediante el selector de documentos de Android, indica las columnas, las filas y el número de fotogramas activos, elige una velocidad de hasta 24 FPS, el escalado y el color de fondo, y después previsualiza y establece el fondo.
+
+Diseñado para reducir el consumo:
+- Detiene el trabajo de renderizado cuando el fondo no está visible
+- Puede congelar la animación cuando Android activa el Ahorro de batería
+- Limita la decodificación de imágenes y el manejo de archivos
+- Incluye una animación de demostración para configurarlo al instante
+
+Privacidad desde el diseño:
+- Funciona completamente sin conexión
+- Sin anuncios, analítica, telemetría ni seguimiento
+- Sin cuentas
+- Sin permisos en tiempo de ejecución
+- La imagen seleccionada permanece en el almacenamiento privado de la aplicación
+
+Los fotogramas se leen de izquierda a derecha y de arriba abajo. Pixel Drift admite hojas de sprites estáticas PNG y WebP con celdas iguales. Los archivos GIF animados, WebP animados y APNG no son compatibles; exporta la animación como una única hoja de sprites estática.
+
+El consumo real depende del dispositivo, el launcher, la pantalla, el tamaño de la imagen y la velocidad elegida.
