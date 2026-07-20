@@ -94,23 +94,26 @@ Requirements: JDK 17, Android SDK 36, Build Tools 36.0.0, and the checked-in Gra
 ```bash
 ./gradlew --no-daemon --dependency-verification=strict --warning-mode all \
   verifyWallpaperSurfaceContract testDebugUnitTest lintDebug lintProfile \
-  assembleDebug assembleProfile assembleRelease
+  assembleDebug assembleProfile assembleRelease bundleRelease
 ```
 
 The build verifies the Gradle wrapper distribution and checksums for all 498 resolved plugin and
 dependency artifacts. CI actions are pinned to full commit SHAs and checkout credentials are not
 persisted.
 
-The ordinary release output is unsigned. Official APKs are signed only by the protected tag release
-workflow; private signing material never belongs in the repository. Maintainers should follow
-[docs/RELEASING.md](docs/RELEASING.md).
+The ordinary APK and AAB outputs are unsigned. Official GitHub APKs are signed only by the protected
+tag release workflow. Google Play AABs use a separate upload key in a manually approved environment,
+while the existing release key remains the app-signing identity. Private signing material never
+belongs in the repository. Maintainers should follow [docs/RELEASING.md](docs/RELEASING.md) and the
+[Google Play publication runbook](docs/GOOGLE_PLAY.md).
 
 ## Verification
 
 - 29 scheduler, power-policy, operation-state, scale-geometry, and grid-inference tests.
 - Strict lint with actionable warnings treated as errors.
 - Build-time rejection of wallpaper-incompatible `setKeepScreenOn()` calls.
-- Debug, profile, and minified release compilation on Ubuntu 24.04 with JDK 17 and SDK 36.
+- Debug, profile, minified release, and Android App Bundle compilation on Ubuntu 24.04 with JDK 17
+  and SDK 36.
 - Exact signed-APK preview smoke on Android API 36 for release 0.1.1.
 
 Physical-device battery, launcher-resume, import-memory, and long-run measurements remain required
@@ -121,6 +124,7 @@ before a production release.
 - [Install and troubleshoot](docs/INSTALL.md)
 - [Architecture and power policy](docs/ARCHITECTURE.md)
 - [Battery validation protocol](docs/BATTERY_VALIDATION.md)
+- [Google Play publication runbook](docs/GOOGLE_PLAY.md)
 - [Security policy and release certificate](SECURITY.md)
 - [Privacy](PRIVACY.md)
 - [Contributing](CONTRIBUTING.md)
