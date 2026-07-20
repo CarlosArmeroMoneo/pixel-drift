@@ -3,6 +3,20 @@
 Notable user-visible changes are documented here. Versions follow semantic versioning while the
 project is in early development.
 
+## [0.1.2] - 2026-07-20
+
+### Added
+
+- Android App Bundle generation in ordinary CI.
+- A manually approved Google Play workflow that signs AAB uploads with a separate upload key.
+- A Google Play publication runbook and localized English and Spanish store-listing copy.
+- An accessible in-app link to the public privacy policy.
+
+### Changed
+
+- Expanded the privacy policy with Google Play disclosures covering on-device artwork access,
+  collection, sharing, retention, deletion, and security.
+
 ## [0.1.1] - 2026-07-20
 
 ### Fixed
