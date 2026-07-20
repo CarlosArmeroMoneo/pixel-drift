@@ -33,6 +33,7 @@
 
     <string name="save">Save</string>
     <string name="preview_set">Preview / Set</string>
+    <string name="privacy_policy_link">Privacy policy: https://github.com/CarlosArmeroMoneo/pixel-drift/blob/main/PRIVACY.md</string>
     <string name="saved">Settings saved</string>
     <string name="demo_ready">Demo artwork is ready</string>
     <string name="import_complete">Artwork imported</string>

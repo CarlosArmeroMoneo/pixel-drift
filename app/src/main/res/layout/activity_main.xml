@@ -313,5 +313,15 @@
                 android:layout_weight="1.35"
                 android:text="@string/preview_set" />
         </LinearLayout>
+
+        <TextView
+            style="@style/Text.PixelDrift.Support"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:autoLink="web"
+            android:linksClickable="true"
+            android:text="@string/privacy_policy_link"
+            android:textColorLink="@color/accent" />
     </LinearLayout>
 </ScrollView>

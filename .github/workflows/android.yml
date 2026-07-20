@@ -50,17 +50,18 @@ jobs:
       - name: Check public repository hygiene
         run: python3 scripts/check_repository.py
 
-      - name: Test, lint, and build APKs
+      - name: Test, lint, and build Android packages
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon --dependency-verification=strict --warning-mode all verifyWallpaperSurfaceContract testDebugUnitTest lintDebug lintProfile assembleDebug assembleProfile assembleRelease
+          ./gradlew --no-daemon --dependency-verification=strict --warning-mode all verifyWallpaperSurfaceContract testDebugUnitTest lintDebug lintProfile assembleDebug assembleProfile assembleRelease bundleRelease
 
       - name: Package unsigned verification output
         run: |
-          mkdir -p app/build/verified-apks
-          cp app/build/outputs/apk/release/app-release-unsigned.apk app/build/verified-apks/
-          cd app/build/verified-apks
-          sha256sum *.apk > SHA256SUMS
+          mkdir -p app/build/verified-packages
+          cp app/build/outputs/apk/release/app-release-unsigned.apk app/build/verified-packages/
+          cp app/build/outputs/bundle/release/app-release.aab app/build/verified-packages/app-release-unsigned.aab
+          cd app/build/verified-packages
+          sha256sum *.apk *.aab > SHA256SUMS
 
       - name: Upload unsigned CI output
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -68,7 +69,7 @@ jobs:
           name: pixel-drift-unsigned-ci-output
           if-no-files-found: error
           retention-days: 14
-          path: app/build/verified-apks/
+          path: app/build/verified-packages/
 
       - name: Upload verification reports
         if: always()

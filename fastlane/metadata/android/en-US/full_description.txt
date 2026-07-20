@@ -1,0 +1,20 @@
+Turn a static PNG or WebP sprite sheet into a custom animated pixel art live wallpaper.
+
+Import artwork through Android's document picker, set the columns, rows, and active frame count, choose a playback speed up to 24 FPS, select scaling and a background colour, then preview and set the wallpaper.
+
+Designed for quiet power use:
+- Stops frame work when the wallpaper is not visible
+- Optional animation freeze in Android Battery Saver
+- Bounded image decoding and file handling
+- Built-in demo artwork for immediate setup
+
+Private by design:
+- Fully offline
+- No ads, analytics, telemetry, or tracking
+- No account
+- No runtime permissions
+- Selected artwork remains in app-private storage
+
+Frames are read from left to right, then top to bottom. Pixel Drift supports equal-cell static PNG and static WebP sprite sheets. Animated GIF, animated WebP, and APNG files are deliberately unsupported; export the animation as one static sprite sheet instead.
+
+Actual battery use varies with the device, launcher, display, artwork size, and chosen frame rate.

@@ -1,0 +1,1 @@
+Añade compatibilidad con Android App Bundle y un enlace interno a la política de privacidad.
