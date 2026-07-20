@@ -34,6 +34,7 @@ public final class MainActivity extends Activity
     private static final String STATE_BASELINE_SYSTEM_ID = "baseline_system_id";
     private static final String STATE_BASELINE_LOCK_ID = "baseline_lock_id";
     private static final String STATE_BASELINE_SYSTEM_ACTIVE = "baseline_system_active";
+    private static final String STATE_BASELINE_APPLY_GENERATION = "baseline_apply_generation";
     private static final int[] FPS_VALUES = {0, 4, 6, 8, 12, 16, 24};
     private static final String[] SCALE_VALUES = {"fit", "fill", "stretch"};
     private static final int[] TARGET_VALUES = {
@@ -66,6 +67,7 @@ public final class MainActivity extends Activity
     private int baselineSystemId = -1;
     private int baselineLockId = -1;
     private boolean baselineSystemActive;
+    private int baselineApplyGeneration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -336,6 +338,7 @@ public final class MainActivity extends Activity
         baselineSystemId = safeWallpaperId(manager, WallpaperTargetPolicy.SYSTEM);
         baselineLockId = safeWallpaperId(manager, WallpaperTargetPolicy.LOCK);
         baselineSystemActive = isPixelDriftActive(manager, WallpaperTargetPolicy.SYSTEM);
+        baselineApplyGeneration = preferences.getApplyGeneration();
         wallpaperPickerPending = true;
 
         ComponentName component = new ComponentName(this, PixelWallpaperService.class);
@@ -423,6 +426,7 @@ public final class MainActivity extends Activity
         outState.putInt(STATE_BASELINE_SYSTEM_ID, baselineSystemId);
         outState.putInt(STATE_BASELINE_LOCK_ID, baselineLockId);
         outState.putBoolean(STATE_BASELINE_SYSTEM_ACTIVE, baselineSystemActive);
+        outState.putInt(STATE_BASELINE_APPLY_GENERATION, baselineApplyGeneration);
         super.onSaveInstanceState(outState);
     }
 
@@ -498,6 +502,7 @@ public final class MainActivity extends Activity
         baselineSystemId = state.getInt(STATE_BASELINE_SYSTEM_ID, -1);
         baselineLockId = state.getInt(STATE_BASELINE_LOCK_ID, -1);
         baselineSystemActive = state.getBoolean(STATE_BASELINE_SYSTEM_ACTIVE, false);
+        baselineApplyGeneration = state.getInt(STATE_BASELINE_APPLY_GENERATION, 0);
     }
 
     private void resolveWallpaperPickerResult() {
@@ -527,19 +532,24 @@ public final class MainActivity extends Activity
             actualTarget = WallpaperTargetPolicy.BOTH;
         }
 
+        if (actualTarget == 0
+                && preferences.getApplyGeneration() != baselineApplyGeneration) {
+            actualTarget = preferences.getLastAppliedTarget();
+        }
+
         // Android 14+ engine flags and Android 16's onApplyWallpaper callback can commit first.
-        int statusTarget = actualTarget == 0 ? requestedTarget : actualTarget;
         if (actualTarget != 0 && !preferences.draftMatchesApplied(actualTarget)) {
             if (!preferences.applyDraft(actualTarget)) {
                 Toast.makeText(this, R.string.settings_write_failed, Toast.LENGTH_LONG).show();
                 return;
             }
         }
-        if (preferences.draftMatchesApplied(statusTarget)
-                && targetIsActive(manager, statusTarget)) {
+        if (actualTarget != 0
+                && preferences.draftMatchesApplied(actualTarget)
+                && targetIsActive(manager, actualTarget)) {
             Toast.makeText(
                     this,
-                    getString(R.string.wallpaper_applied, targetName(statusTarget)),
+                    getString(R.string.wallpaper_applied, targetName(actualTarget)),
                     Toast.LENGTH_SHORT
             ).show();
         } else {

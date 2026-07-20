@@ -331,11 +331,18 @@ public final class AssetStore {
         for (int attempts = 0; attempts < Integer.MAX_VALUE; attempts++) {
             candidate = candidate == Integer.MAX_VALUE ? 1 : candidate + 1;
             if (!isRevisionReferenced(preferences, candidate)
-                    && !new File(assetDirectory, "sprite_" + candidate + ".bin").exists()) {
+                    && !revisionFilesExist(candidate)) {
                 return candidate;
             }
         }
         throw new IOException("No private asset revision is available");
+    }
+
+    private boolean revisionFilesExist(int revision) {
+        File base = new File(assetDirectory, "sprite_" + revision + ".bin");
+        return base.exists()
+                || new File(base.getPath() + ".bak").exists()
+                || new File(base.getPath() + ".new").exists();
     }
 
     private static boolean isRevisionReferenced(SharedPreferences preferences, int revision) {

@@ -15,6 +15,8 @@ public final class WallpaperPreferences {
     static final String PREFIX_LOCK = "applied_lock_";
     private static final String KEY_SCHEMA = "schema";
     private static final String KEY_APPLIED_SCHEMA = "applied_schema";
+    private static final String KEY_APPLY_GENERATION = "apply_generation";
+    private static final String KEY_LAST_APPLIED_TARGET = "last_applied_target";
     static final String KEY_COLUMNS = "columns";
     static final String KEY_ROWS = "rows";
     static final String KEY_FRAME_COUNT = "frame_count";
@@ -77,8 +79,16 @@ public final class WallpaperPreferences {
             int previousSystemHeight = preferences.getInt(key(PREFIX_SYSTEM, KEY_ASSET_HEIGHT), 0);
             int previousLockWidth = preferences.getInt(key(PREFIX_LOCK, KEY_ASSET_WIDTH), 0);
             int previousLockHeight = preferences.getInt(key(PREFIX_LOCK, KEY_ASSET_HEIGHT), 0);
+            int previousGeneration = preferences.getInt(KEY_APPLY_GENERATION, 0);
+            int previousTarget = preferences.getInt(KEY_LAST_APPLIED_TARGET, 0);
+            int nextGeneration = previousGeneration == Integer.MAX_VALUE
+                    ? 1
+                    : previousGeneration + 1;
 
-            SharedPreferences.Editor editor = preferences.edit().putInt(KEY_APPLIED_SCHEMA, 1);
+            SharedPreferences.Editor editor = preferences.edit()
+                    .putInt(KEY_APPLIED_SCHEMA, 1)
+                    .putInt(KEY_APPLY_GENERATION, nextGeneration)
+                    .putInt(KEY_LAST_APPLIED_TARGET, which);
             if ((which & WallpaperTargetPolicy.SYSTEM) != 0) {
                 putConfig(editor, PREFIX_SYSTEM, draft, draftWidth, draftHeight);
             }
@@ -91,7 +101,10 @@ public final class WallpaperPreferences {
             }
 
             // commit() can update the in-process map even when disk persistence fails.
-            SharedPreferences.Editor restore = preferences.edit().putInt(KEY_APPLIED_SCHEMA, 1);
+            SharedPreferences.Editor restore = preferences.edit()
+                    .putInt(KEY_APPLIED_SCHEMA, 1)
+                    .putInt(KEY_APPLY_GENERATION, previousGeneration)
+                    .putInt(KEY_LAST_APPLIED_TARGET, previousTarget);
             putConfig(
                     restore,
                     PREFIX_SYSTEM,
@@ -123,6 +136,14 @@ public final class WallpaperPreferences {
         }
     }
 
+    int getApplyGeneration() {
+        return preferences.getInt(KEY_APPLY_GENERATION, 0);
+    }
+
+    int getLastAppliedTarget() {
+        return preferences.getInt(KEY_LAST_APPLIED_TARGET, 0);
+    }
+
     static boolean affectsEngine(
             boolean preview,
             int wallpaperFlags,
@@ -131,6 +152,11 @@ public final class WallpaperPreferences {
     ) {
         if (changedKey == null) {
             return true;
+        }
+        if (KEY_APPLY_GENERATION.equals(changedKey)
+                || KEY_LAST_APPLIED_TARGET.equals(changedKey)
+                || KEY_APPLIED_SCHEMA.equals(changedKey)) {
+            return false;
         }
         if (preview) {
             return !changedKey.startsWith(PREFIX_SYSTEM)

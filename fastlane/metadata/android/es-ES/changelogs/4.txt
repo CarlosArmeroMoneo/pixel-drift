@@ -1,0 +1,1 @@
+Previsualiza arte importado sin cambiar el fondo activo. Android 14 o posterior permite usar arte distinto de Pixel Drift en Inicio y Bloqueo.
