@@ -212,6 +212,19 @@ public final class PixelWallpaperService extends WallpaperService {
             requestImmediateFrame();
         }
 
+        protected final boolean wasCreatedForPreview() {
+            return previewEngine;
+        }
+
+        protected final void updateTargetAndReload(int which, boolean draftWasApplied) {
+            wallpaperFlags = which;
+            if (draftWasApplied) {
+                previewEngine = false;
+            }
+            preferencesDirty.set(true);
+            requestImmediateFrame();
+        }
+
         @Override
         public void onDestroy() {
             destroyed = true;
@@ -583,7 +596,7 @@ public final class PixelWallpaperService extends WallpaperService {
             super.onCreate(surfaceHolder);
             int initialFlags = getWallpaperFlags();
             if (initialFlags != 0) {
-                wallpaperFlags = initialFlags;
+                updateTargetAndReload(initialFlags, false);
             }
         }
 
@@ -592,20 +605,17 @@ public final class PixelWallpaperService extends WallpaperService {
             if (which == 0) {
                 return;
             }
-            wallpaperFlags = which;
             // A preview engine receives target flags only after the user confirms in Android's
             // picker. Active engines never copy a draft merely because draft preferences change.
-            if (previewEngine) {
-                boolean committed = new WallpaperPreferences(PixelWallpaperService.this)
+            boolean committed = false;
+            if (wasCreatedForPreview()) {
+                committed = new WallpaperPreferences(PixelWallpaperService.this)
                         .applyDraft(which);
                 if (!committed) {
                     Log.e(TAG, "Android applied the wallpaper but its draft could not be persisted");
-                } else {
-                    previewEngine = false;
                 }
             }
-            preferencesDirty.set(true);
-            requestImmediateFrame();
+            updateTargetAndReload(which, committed);
         }
     }
 
@@ -614,15 +624,12 @@ public final class PixelWallpaperService extends WallpaperService {
         @Override
         public WallpaperDescription onApplyWallpaper(int which) {
             if (which != 0) {
-                wallpaperFlags = which;
                 boolean committed = new WallpaperPreferences(PixelWallpaperService.this)
                         .applyDraft(which);
                 if (!committed) {
                     Log.e(TAG, "Confirmed wallpaper draft could not be persisted");
-                } else {
-                    previewEngine = false;
                 }
-                preferencesDirty.set(true);
+                updateTargetAndReload(which, committed);
             }
             return null;
         }
