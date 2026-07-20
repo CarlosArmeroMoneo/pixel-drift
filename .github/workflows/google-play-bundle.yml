@@ -90,8 +90,8 @@ jobs:
           jarsigner \
             -keystore "${keystore}" \
             -storetype PKCS12 \
-            -storepass "${PIXELDRIFT_UPLOAD_KEYSTORE_PASSWORD}" \
-            -keypass "${PIXELDRIFT_UPLOAD_KEY_PASSWORD}" \
+            -storepass:env PIXELDRIFT_UPLOAD_KEYSTORE_PASSWORD \
+            -keypass:env PIXELDRIFT_UPLOAD_KEY_PASSWORD \
             -sigalg SHA256withRSA \
             -digestalg SHA-256 \
             -signedjar "${signed}" \
@@ -106,7 +106,7 @@ jobs:
           keytool -exportcert -rfc \
             -keystore "${keystore}" \
             -storetype PKCS12 \
-            -storepass "${PIXELDRIFT_UPLOAD_KEYSTORE_PASSWORD}" \
+            -storepass:env PIXELDRIFT_UPLOAD_KEYSTORE_PASSWORD \
             -alias "${PIXELDRIFT_UPLOAD_KEY_ALIAS}" \
             -file play-output/upload_certificate.pem
 
