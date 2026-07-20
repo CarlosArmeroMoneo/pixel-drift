@@ -8,7 +8,7 @@
 
     <string name="source_heading">Artwork source</string>
     <string name="source_status_empty">Built-in demo is ready</string>
-    <string name="source_status_ready">Ready: %1$s</string>
+    <string name="source_status_ready">Draft: %1$s</string>
     <string name="source_support">Imports static PNG or WebP sprite sheets. Frames are read left-to-right, then top-to-bottom.</string>
     <string name="import_artwork">Import artwork</string>
     <string name="use_demo">Use demo</string>
@@ -31,12 +31,24 @@
     <string name="freeze_battery_saver">Freeze animation in Battery Saver</string>
     <string name="freeze_battery_saver_summary">Shows one frame instead of waking the renderer repeatedly.</string>
 
-    <string name="save">Save</string>
+    <string name="target_label">Set destination</string>
+    <string name="target_summary">Android 14 and newer can keep different Pixel Drift artwork on Home and Lock. On older Android versions, live wallpaper is shared.</string>
+    <string name="draft_safety_summary">Imports and saved edits remain a draft. Your current wallpaper changes only after you tap Set wallpaper in Android’s preview.</string>
+    <string name="save">Save draft</string>
     <string name="preview_set">Preview / Set</string>
     <string name="privacy_policy_link">Privacy policy: https://github.com/CarlosArmeroMoneo/pixel-drift/blob/main/PRIVACY.md</string>
-    <string name="saved">Settings saved</string>
-    <string name="demo_ready">Demo artwork is ready</string>
-    <string name="import_complete">Artwork imported</string>
+    <string name="saved">Draft saved — current wallpaper unchanged</string>
+    <string name="demo_ready">Demo selected as draft</string>
+    <string name="import_complete">Artwork imported as draft</string>
+    <string name="preview_closed_unchanged">Preview closed — current wallpaper unchanged</string>
+    <string name="wallpaper_applied">Draft applied to %1$s</string>
+    <string name="target_home_name">Home screen</string>
+    <string name="target_lock_name">Lock screen</string>
+    <string name="target_both_name">Home and Lock screens</string>
+    <string name="target_instruction_home">In Android’s preview, tap Set wallpaper and choose Home screen.</string>
+    <string name="target_instruction_lock">In Android’s preview, tap Set wallpaper and choose Lock screen.</string>
+    <string name="target_instruction_both">In Android’s preview, tap Set wallpaper and choose Home and Lock screens.</string>
+    <string name="target_instruction_shared">This Android version uses one shared live wallpaper. Tap Set wallpaper in Android’s preview to apply.</string>
     <string name="import_failed">Could not import artwork: %1$s</string>
     <string name="demo_failed">Could not create demo artwork: %1$s</string>
     <string name="document_picker_unavailable">No document picker is available</string>

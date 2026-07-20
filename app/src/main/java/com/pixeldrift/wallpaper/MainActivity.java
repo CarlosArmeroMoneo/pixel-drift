@@ -2,12 +2,14 @@ package com.pixeldrift.wallpaper;
 
 import android.app.Activity;
 import android.app.WallpaperManager;
+import android.app.WallpaperInfo;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -27,8 +29,18 @@ public final class MainActivity extends Activity
         implements AssetWorkQueue.Listener {
     private static final int REQUEST_IMPORT_DOCUMENT = 1001;
     private static final String STATE_GRID_EDITED = "grid_edited";
+    private static final String STATE_PICKER_PENDING = "picker_pending";
+    private static final String STATE_REQUESTED_TARGET = "requested_target";
+    private static final String STATE_BASELINE_SYSTEM_ID = "baseline_system_id";
+    private static final String STATE_BASELINE_LOCK_ID = "baseline_lock_id";
+    private static final String STATE_BASELINE_SYSTEM_ACTIVE = "baseline_system_active";
     private static final int[] FPS_VALUES = {0, 4, 6, 8, 12, 16, 24};
     private static final String[] SCALE_VALUES = {"fit", "fill", "stretch"};
+    private static final int[] TARGET_VALUES = {
+            WallpaperTargetPolicy.SYSTEM,
+            WallpaperTargetPolicy.LOCK,
+            WallpaperTargetPolicy.BOTH
+    };
 
     private WallpaperPreferences preferences;
     private AssetStore assetStore;
@@ -44,10 +56,16 @@ public final class MainActivity extends Activity
     private EditText backgroundColorInput;
     private Spinner fpsSpinner;
     private Spinner scaleSpinner;
+    private Spinner targetSpinner;
     private Switch batterySaverSwitch;
     private boolean updatingGridFields;
     private boolean gridEditedByUser;
     private boolean resumed;
+    private boolean wallpaperPickerPending;
+    private int requestedTarget = WallpaperTargetPolicy.SYSTEM;
+    private int baselineSystemId = -1;
+    private int baselineLockId = -1;
+    private boolean baselineSystemActive;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +79,7 @@ public final class MainActivity extends Activity
         attachGridWatchers();
         gridEditedByUser = savedInstanceState != null
                 && savedInstanceState.getBoolean(STATE_GRID_EDITED, false);
+        restorePickerState(savedInstanceState);
         refreshSourceStatus();
 
         importButton.setOnClickListener(view -> openDocumentPicker());
@@ -82,7 +101,12 @@ public final class MainActivity extends Activity
         backgroundColorInput = findViewById(R.id.background_color_input);
         fpsSpinner = findViewById(R.id.fps_spinner);
         scaleSpinner = findViewById(R.id.scale_spinner);
+        targetSpinner = findViewById(R.id.target_spinner);
         batterySaverSwitch = findViewById(R.id.battery_saver_switch);
+        if (!WallpaperTargetPolicy.supportsIndependentTargets(Build.VERSION.SDK_INT)) {
+            targetSpinner.setSelection(2);
+            targetSpinner.setEnabled(false);
+        }
     }
 
     private void restorePreferences() {
@@ -211,6 +235,9 @@ public final class MainActivity extends Activity
         backgroundColorInput.setEnabled(!busy);
         fpsSpinner.setEnabled(!busy);
         scaleSpinner.setEnabled(!busy);
+        targetSpinner.setEnabled(
+                !busy && WallpaperTargetPolicy.supportsIndependentTargets(Build.VERSION.SDK_INT)
+        );
         batterySaverSwitch.setEnabled(!busy);
     }
 
@@ -301,15 +328,31 @@ public final class MainActivity extends Activity
             return;
         }
 
+        requestedTarget = WallpaperTargetPolicy.normalizeRequestedTarget(
+                TARGET_VALUES[targetSpinner.getSelectedItemPosition()],
+                Build.VERSION.SDK_INT
+        );
+        WallpaperManager manager = WallpaperManager.getInstance(this);
+        baselineSystemId = safeWallpaperId(manager, WallpaperTargetPolicy.SYSTEM);
+        baselineLockId = safeWallpaperId(manager, WallpaperTargetPolicy.LOCK);
+        baselineSystemActive = isPixelDriftActive(manager, WallpaperTargetPolicy.SYSTEM);
+        wallpaperPickerPending = true;
+
         ComponentName component = new ComponentName(this, PixelWallpaperService.class);
         Intent preview = new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
         preview.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT, component);
         try {
+            Toast.makeText(
+                    this,
+                    getString(targetInstruction(requestedTarget)),
+                    Toast.LENGTH_LONG
+            ).show();
             startActivity(preview);
         } catch (ActivityNotFoundException firstError) {
             try {
                 startActivity(new Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER));
             } catch (ActivityNotFoundException secondError) {
+                wallpaperPickerPending = false;
                 Toast.makeText(
                         this,
                         R.string.wallpaper_picker_unavailable,
@@ -357,6 +400,13 @@ public final class MainActivity extends Activity
         super.onResume();
         resumed = true;
         applyAssetWorkState();
+        if (wallpaperPickerPending) {
+            getWindow().getDecorView().postDelayed(() -> {
+                if (resumed && wallpaperPickerPending) {
+                    resolveWallpaperPickerResult();
+                }
+            }, 300L);
+        }
     }
 
     @Override
@@ -368,6 +418,11 @@ public final class MainActivity extends Activity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putBoolean(STATE_GRID_EDITED, gridEditedByUser);
+        outState.putBoolean(STATE_PICKER_PENDING, wallpaperPickerPending);
+        outState.putInt(STATE_REQUESTED_TARGET, requestedTarget);
+        outState.putInt(STATE_BASELINE_SYSTEM_ID, baselineSystemId);
+        outState.putInt(STATE_BASELINE_LOCK_ID, baselineLockId);
+        outState.putBoolean(STATE_BASELINE_SYSTEM_ACTIVE, baselineSystemActive);
         super.onSaveInstanceState(outState);
     }
 
@@ -432,6 +487,130 @@ public final class MainActivity extends Activity
         } finally {
             updatingGridFields = false;
         }
+    }
+
+    private void restorePickerState(Bundle state) {
+        if (state == null) {
+            return;
+        }
+        wallpaperPickerPending = state.getBoolean(STATE_PICKER_PENDING, false);
+        requestedTarget = state.getInt(STATE_REQUESTED_TARGET, WallpaperTargetPolicy.SYSTEM);
+        baselineSystemId = state.getInt(STATE_BASELINE_SYSTEM_ID, -1);
+        baselineLockId = state.getInt(STATE_BASELINE_LOCK_ID, -1);
+        baselineSystemActive = state.getBoolean(STATE_BASELINE_SYSTEM_ACTIVE, false);
+    }
+
+    private void resolveWallpaperPickerResult() {
+        wallpaperPickerPending = false;
+        WallpaperManager manager = WallpaperManager.getInstance(this);
+        int actualTarget = 0;
+
+        if (Build.VERSION.SDK_INT >= WallpaperTargetPolicy.INDEPENDENT_TARGETS_API) {
+            int currentSystemId = safeWallpaperId(manager, WallpaperTargetPolicy.SYSTEM);
+            int currentLockId = safeWallpaperId(manager, WallpaperTargetPolicy.LOCK);
+            if (currentSystemId != baselineSystemId
+                    && isPixelDriftActive(manager, WallpaperTargetPolicy.SYSTEM)) {
+                actualTarget |= WallpaperTargetPolicy.SYSTEM;
+            }
+            if (currentLockId != baselineLockId
+                    && isPixelDriftActive(manager, WallpaperTargetPolicy.LOCK)) {
+                actualTarget |= WallpaperTargetPolicy.LOCK;
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            int currentSystemId = safeWallpaperId(manager, WallpaperTargetPolicy.SYSTEM);
+            if (currentSystemId != baselineSystemId
+                    && isPixelDriftActive(manager, WallpaperTargetPolicy.SYSTEM)) {
+                actualTarget = WallpaperTargetPolicy.BOTH;
+            }
+        } else if (!baselineSystemActive
+                && isPixelDriftActive(manager, WallpaperTargetPolicy.SYSTEM)) {
+            actualTarget = WallpaperTargetPolicy.BOTH;
+        }
+
+        // Android 14+ engine flags and Android 16's onApplyWallpaper callback can commit first.
+        int statusTarget = actualTarget == 0 ? requestedTarget : actualTarget;
+        if (actualTarget != 0 && !preferences.draftMatchesApplied(actualTarget)) {
+            if (!preferences.applyDraft(actualTarget)) {
+                Toast.makeText(this, R.string.settings_write_failed, Toast.LENGTH_LONG).show();
+                return;
+            }
+        }
+        if (preferences.draftMatchesApplied(statusTarget)
+                && targetIsActive(manager, statusTarget)) {
+            Toast.makeText(
+                    this,
+                    getString(R.string.wallpaper_applied, targetName(statusTarget)),
+                    Toast.LENGTH_SHORT
+            ).show();
+        } else {
+            Toast.makeText(this, R.string.preview_closed_unchanged, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean targetIsActive(WallpaperManager manager, int target) {
+        if (Build.VERSION.SDK_INT < WallpaperTargetPolicy.INDEPENDENT_TARGETS_API) {
+            return isPixelDriftActive(manager, WallpaperTargetPolicy.SYSTEM);
+        }
+        boolean active = true;
+        if ((target & WallpaperTargetPolicy.SYSTEM) != 0) {
+            active = isPixelDriftActive(manager, WallpaperTargetPolicy.SYSTEM);
+        }
+        if ((target & WallpaperTargetPolicy.LOCK) != 0) {
+            active = active && isPixelDriftActive(manager, WallpaperTargetPolicy.LOCK);
+        }
+        return active;
+    }
+
+    private boolean isPixelDriftActive(WallpaperManager manager, int target) {
+        try {
+            WallpaperInfo info;
+            if (Build.VERSION.SDK_INT >= WallpaperTargetPolicy.INDEPENDENT_TARGETS_API) {
+                info = manager.getWallpaperInfo(target);
+            } else {
+                if (target == WallpaperTargetPolicy.LOCK) {
+                    return false;
+                }
+                info = manager.getWallpaperInfo();
+            }
+            return info != null && new ComponentName(this, PixelWallpaperService.class)
+                    .equals(info.getComponent());
+        } catch (RuntimeException error) {
+            return false;
+        }
+    }
+
+    private static int safeWallpaperId(WallpaperManager manager, int target) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            return -1;
+        }
+        try {
+            return manager.getWallpaperId(target);
+        } catch (RuntimeException error) {
+            return -1;
+        }
+    }
+
+    private int targetInstruction(int target) {
+        if (Build.VERSION.SDK_INT < WallpaperTargetPolicy.INDEPENDENT_TARGETS_API) {
+            return R.string.target_instruction_shared;
+        }
+        if (target == WallpaperTargetPolicy.LOCK) {
+            return R.string.target_instruction_lock;
+        }
+        if (target == WallpaperTargetPolicy.BOTH) {
+            return R.string.target_instruction_both;
+        }
+        return R.string.target_instruction_home;
+    }
+
+    private String targetName(int target) {
+        if (Build.VERSION.SDK_INT < WallpaperTargetPolicy.INDEPENDENT_TARGETS_API
+                || target == WallpaperTargetPolicy.BOTH) {
+            return getString(R.string.target_both_name);
+        }
+        return target == WallpaperTargetPolicy.LOCK
+                ? getString(R.string.target_lock_name)
+                : getString(R.string.target_home_name);
     }
 
     private static final class GridInput {

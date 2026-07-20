@@ -3,6 +3,18 @@
 Pixel Drift uses Android platform views and `WallpaperService`. It does not depend on Compose, a
 game engine, an animated-image decoder, a permanent OpenGL loop, or any third-party runtime library.
 
+## Draft and applied state
+
+Artwork imports and editor changes update only a private draft slot. Android's wallpaper preview
+engine reads that draft, while active engines read durable applied slots. The draft is copied only
+after Android reports an explicit wallpaper application; cancelling preview leaves Home and Lock
+unchanged.
+
+Android 14+ provides each live-wallpaper engine with Home/Lock flags, allowing different immutable
+asset revisions and playback settings per screen. Earlier Android releases use the Home applied
+slot as their single shared live-wallpaper configuration. Revision garbage collection retains every
+asset referenced by the draft or either applied slot.
+
 ## Rendering gates
 
 Each active or preview engine owns one background renderer thread. A frame is eligible only when:

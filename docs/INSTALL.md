@@ -1,5 +1,15 @@
 # Install Pixel Drift
 
+## Previewing and setting artwork
+
+Importing or saving creates a draft and does not change the current wallpaper. Choose a destination,
+open **Preview / Set**, and confirm **Set wallpaper** in Android's system preview. Cancelling the
+preview keeps the active wallpaper unchanged.
+
+Android 14 and newer can assign Pixel Drift separately to Home and Lock, with different artwork in
+each applied slot. Older Android versions expose one shared live-wallpaper configuration, so the app
+disables separate target selection there.
+
 ## Recommended: signed GitHub Release
 
 1. Open the repository's **Releases** page.

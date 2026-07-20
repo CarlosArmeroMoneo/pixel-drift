@@ -3,6 +3,22 @@
 Notable user-visible changes are documented here. Versions follow semantic versioning while the
 project is in early development.
 
+## [0.2.0] - 2026-07-20
+
+### Added
+
+- Independent applied configurations for Home and Lock live wallpapers on Android 14 and newer.
+- Explicit destination selection and clear draft-versus-applied status in the configuration screen.
+- Android 16 apply-callback support, Android 14 engine-target handling, and conservative lifecycle
+  fallbacks for earlier supported Android versions.
+
+### Fixed
+
+- Importing artwork or saving display settings no longer changes an already-active wallpaper.
+- Preview engines render the editable draft while active engines render only their last explicitly
+  applied slot.
+- Private revision cleanup now retains every sprite sheet referenced by the draft, Home, or Lock.
+
 ## [0.1.2] - 2026-07-20
 
 ### Added

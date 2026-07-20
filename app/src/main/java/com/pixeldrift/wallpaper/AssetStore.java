@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 /** Owns revisioned private sprite sheets and switches bytes plus grid metadata together. */
 public final class AssetStore {
@@ -157,7 +159,7 @@ public final class AssetStore {
                 );
                 throw new IOException("Could not select the built-in asset");
             }
-            cleanupUnreferencedRevisions(previousRevision);
+            cleanupUnreferencedRevisions();
         }
     }
 
@@ -183,7 +185,7 @@ public final class AssetStore {
         int nextRevision;
         synchronized (STORE_LOCK) {
             previousRevision = preferences.getInt(WallpaperPreferences.KEY_ASSET_REVISION, 0);
-            nextRevision = previousRevision == Integer.MAX_VALUE ? 1 : previousRevision + 1;
+            nextRevision = nextAvailableRevision(preferences, previousRevision);
         }
 
         // The new revision is immutable and not yet referenced, so the potentially 25 MiB copy
@@ -256,7 +258,7 @@ public final class AssetStore {
                 );
                 throw new IOException("Could not activate the imported asset");
             }
-            cleanupUnreferencedRevisions(nextRevision);
+            cleanupUnreferencedRevisions();
         }
     }
 
@@ -291,23 +293,78 @@ public final class AssetStore {
         return new AtomicFile(new File(assetDirectory, "sprite_" + revision + ".bin"));
     }
 
-    private void cleanupUnreferencedRevisions(int activeRevision) {
+    /** Removes only revisions that are not used by the draft, Home, or Lock configuration. */
+    void cleanupUnreferencedRevisions() {
         File[] files = assetDirectory.listFiles();
         if (files == null) {
             return;
         }
-        String activeName = "sprite_" + activeRevision + ".bin";
+        SharedPreferences preferences = WallpaperPreferences.preferences(context);
+        Set<Integer> referenced = new HashSet<>();
+        addReferencedRevision(preferences, "", referenced);
+        addReferencedRevision(preferences, WallpaperPreferences.PREFIX_SYSTEM, referenced);
+        addReferencedRevision(preferences, WallpaperPreferences.PREFIX_LOCK, referenced);
         for (File file : files) {
             String name = file.getName();
             String baseName = name;
             if (baseName.endsWith(".bak") || baseName.endsWith(".new")) {
                 baseName = baseName.substring(0, baseName.length() - 4);
             }
-            if (baseName.startsWith("sprite_")
-                    && baseName.endsWith(".bin")
-                    && !baseName.equals(activeName)) {
-                new AtomicFile(new File(assetDirectory, baseName)).delete();
+            if (!baseName.startsWith("sprite_") || !baseName.endsWith(".bin")) {
+                continue;
             }
+            String rawRevision = baseName.substring(7, baseName.length() - 4);
+            try {
+                int revision = Integer.parseInt(rawRevision);
+                if (!referenced.contains(revision)) {
+                    new AtomicFile(new File(assetDirectory, baseName)).delete();
+                }
+            } catch (NumberFormatException ignored) {
+                // Do not delete an unknown file merely because its name resembles an asset.
+            }
+        }
+    }
+
+    private int nextAvailableRevision(SharedPreferences preferences, int previousRevision)
+            throws IOException {
+        int candidate = previousRevision;
+        for (int attempts = 0; attempts < Integer.MAX_VALUE; attempts++) {
+            candidate = candidate == Integer.MAX_VALUE ? 1 : candidate + 1;
+            if (!isRevisionReferenced(preferences, candidate)
+                    && !new File(assetDirectory, "sprite_" + candidate + ".bin").exists()) {
+                return candidate;
+            }
+        }
+        throw new IOException("No private asset revision is available");
+    }
+
+    private static boolean isRevisionReferenced(SharedPreferences preferences, int revision) {
+        return isRevisionReferenced(preferences, "", revision)
+                || isRevisionReferenced(preferences, WallpaperPreferences.PREFIX_SYSTEM, revision)
+                || isRevisionReferenced(preferences, WallpaperPreferences.PREFIX_LOCK, revision);
+    }
+
+    private static boolean isRevisionReferenced(
+            SharedPreferences preferences,
+            String prefix,
+            int revision
+    ) {
+        return preferences.getBoolean(prefix + WallpaperPreferences.KEY_SOURCE_CUSTOM, false)
+                && preferences.getInt(prefix + WallpaperPreferences.KEY_ASSET_REVISION, 0)
+                == revision;
+    }
+
+    private static void addReferencedRevision(
+            SharedPreferences preferences,
+            String prefix,
+            Set<Integer> destination
+    ) {
+        if (!preferences.getBoolean(prefix + WallpaperPreferences.KEY_SOURCE_CUSTOM, false)) {
+            return;
+        }
+        int revision = preferences.getInt(prefix + WallpaperPreferences.KEY_ASSET_REVISION, 0);
+        if (revision > 0) {
+            destination.add(revision);
         }
     }
 
