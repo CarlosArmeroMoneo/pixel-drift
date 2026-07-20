@@ -1,5 +1,8 @@
 package com.pixeldrift.wallpaper;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.wallpaper.WallpaperDescription;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,10 +32,16 @@ public final class PixelWallpaperService extends WallpaperService {
 
     @Override
     public Engine onCreateEngine() {
+        if (Build.VERSION.SDK_INT >= 36) {
+            return new PixelEngineApi36();
+        }
+        if (Build.VERSION.SDK_INT >= WallpaperTargetPolicy.INDEPENDENT_TARGETS_API) {
+            return new PixelEngineApi34();
+        }
         return new PixelEngine();
     }
 
-    private final class PixelEngine extends Engine
+    private class PixelEngine extends Engine
             implements SharedPreferences.OnSharedPreferenceChangeListener {
         private final Paint bitmapPaint = new Paint();
         private final Rect sourceRect = new Rect();
@@ -87,6 +96,8 @@ public final class PixelWallpaperService extends WallpaperService {
         private volatile boolean screenInteractive;
         private volatile boolean batterySaver;
         private boolean receiverRegistered;
+        private volatile boolean previewEngine;
+        private volatile int wallpaperFlags = WallpaperTargetPolicy.SYSTEM;
 
         PixelEngine() {
             bitmapPaint.setAntiAlias(false);
@@ -97,6 +108,7 @@ public final class PixelWallpaperService extends WallpaperService {
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
             super.onCreate(surfaceHolder);
+            previewEngine = isPreview();
             setTouchEventsEnabled(false);
             setOffsetNotificationsEnabled(false);
             surfaceHolder.setFormat(PixelFormat.OPAQUE);
@@ -118,6 +130,7 @@ public final class PixelWallpaperService extends WallpaperService {
 
         @Override
         public void onVisibilityChanged(boolean isVisible) {
+            previewEngine = previewEngine || isPreview();
             visible = isVisible;
             if (isVisible) {
                 refreshPowerState();
@@ -188,6 +201,27 @@ public final class PixelWallpaperService extends WallpaperService {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences preferences, String key) {
+            if (!WallpaperPreferences.affectsEngine(
+                    previewEngine,
+                    wallpaperFlags,
+                    Build.VERSION.SDK_INT,
+                    key
+            )) {
+                return;
+            }
+            preferencesDirty.set(true);
+            requestImmediateFrame();
+        }
+
+        protected final boolean wasCreatedForPreview() {
+            return previewEngine;
+        }
+
+        protected final void updateTargetAndReload(int which, boolean draftWasApplied) {
+            wallpaperFlags = which;
+            if (draftWasApplied) {
+                previewEngine = false;
+            }
             preferencesDirty.set(true);
             requestImmediateFrame();
         }
@@ -329,7 +363,12 @@ public final class PixelWallpaperService extends WallpaperService {
         }
 
         private void reloadConfiguration(long now) {
-            WallpaperConfig requested = new WallpaperPreferences(PixelWallpaperService.this).load();
+            WallpaperPreferences preferences = new WallpaperPreferences(
+                    PixelWallpaperService.this
+            );
+            WallpaperConfig requested = previewEngine
+                    ? preferences.load()
+                    : preferences.loadApplied(wallpaperFlags);
             boolean needsAsset = asset == null || !requested.sameAssetLayout(config);
             WallpaperConfig active = requested;
 
@@ -548,6 +587,56 @@ public final class PixelWallpaperService extends WallpaperService {
                 // Already unregistered by the framework.
             }
             receiverRegistered = false;
+        }
+    }
+
+    // Private implementation detail, instantiated only by the guarded checks in onCreateEngine().
+    // Keep the app dependency-free instead of adding AndroidX solely for its RequiresApi marker.
+    @SuppressLint("UseRequiresApi")
+    @TargetApi(34)
+    private class PixelEngineApi34 extends PixelEngine {
+        @Override
+        public void onCreate(SurfaceHolder surfaceHolder) {
+            super.onCreate(surfaceHolder);
+            int initialFlags = getWallpaperFlags();
+            if (initialFlags != 0) {
+                updateTargetAndReload(initialFlags, false);
+            }
+        }
+
+        @Override
+        public void onWallpaperFlagsChanged(int which) {
+            if (which == 0) {
+                return;
+            }
+            // A preview engine receives target flags only after the user confirms in Android's
+            // picker. Active engines never copy a draft merely because draft preferences change.
+            boolean committed = false;
+            if (wasCreatedForPreview()) {
+                committed = new WallpaperPreferences(PixelWallpaperService.this)
+                        .applyDraft(which);
+                if (!committed) {
+                    Log.e(TAG, "Android applied the wallpaper but its draft could not be persisted");
+                }
+            }
+            updateTargetAndReload(which, committed);
+        }
+    }
+
+    @SuppressLint("UseRequiresApi")
+    @TargetApi(36)
+    private final class PixelEngineApi36 extends PixelEngineApi34 {
+        @Override
+        public WallpaperDescription onApplyWallpaper(int which) {
+            if (which != 0) {
+                boolean committed = new WallpaperPreferences(PixelWallpaperService.this)
+                        .applyDraft(which);
+                if (!committed) {
+                    Log.e(TAG, "Confirmed wallpaper draft could not be persisted");
+                }
+                updateTargetAndReload(which, committed);
+            }
+            return null;
         }
     }
 }

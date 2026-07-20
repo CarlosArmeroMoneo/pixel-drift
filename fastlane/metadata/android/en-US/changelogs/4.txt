@@ -1,0 +1,1 @@
+Preview imported artwork without changing your active wallpaper. Android 14+ can keep different Pixel Drift artwork on Home and Lock screens.

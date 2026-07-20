@@ -13,6 +13,10 @@ Pixel Drift is a native Android live-wallpaper app for custom animated pixel art
 PNG or WebP sprite sheet, choose the frame grid and speed, then preview and set it through Android's
 wallpaper picker.
 
+Imports and edits are isolated as a draft: they never alter an active wallpaper until **Set
+wallpaper** is confirmed in Android's preview. Android 14 and newer can keep separate Pixel Drift
+artwork and playback settings on the Home and Lock screens.
+
 The renderer is intentionally conservative: it stops all frame work while hidden, caps playback at
 24 FPS, freezes in Battery Saver when requested, and uses no network, wake lock, foreground service,
 analytics, or unnecessary Android permission.
@@ -33,6 +37,7 @@ Android's unknown-app prompt, updates, and troubleshooting.
 
 - Static PNG and WebP sprite sheets selected through Android's document picker.
 - Equal-cell grids with row-major playback and a configurable active frame count.
+- Non-destructive drafts plus independent Home/Lock applied slots on Android 14+.
 - Static, 4, 6, 8, 12, 16, or 24 FPS playback; 8 FPS by default.
 - Nearest-neighbor pixel scaling with Fit, Fill, Center, and Stretch modes.
 - Configurable background color and optional Battery Saver freeze.

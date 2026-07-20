@@ -15,4 +15,10 @@
         <item>Fill</item>
         <item>Stretch</item>
     </string-array>
+
+    <string-array name="target_labels">
+        <item>Home screen</item>
+        <item>Lock screen</item>
+        <item>Home and lock screens</item>
+    </string-array>
 </resources>

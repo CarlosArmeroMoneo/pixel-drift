@@ -286,7 +286,35 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/freeze_battery_saver_summary" />
+
+            <TextView
+                style="@style/Text.PixelDrift.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:labelFor="@id/target_spinner"
+                android:text="@string/target_label" />
+
+            <Spinner
+                android:id="@+id/target_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:entries="@array/target_labels"
+                android:spinnerMode="dropdown" />
+
+            <TextView
+                style="@style/Text.PixelDrift.Support"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/target_summary" />
         </LinearLayout>
+
+        <TextView
+            style="@style/Text.PixelDrift.Support"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/draft_safety_summary" />
 
         <LinearLayout
             android:layout_width="match_parent"
