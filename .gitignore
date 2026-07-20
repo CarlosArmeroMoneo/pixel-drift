@@ -1,0 +1,29 @@
+*.iml
+.gradle/
+/local.properties
+/.idea/
+.DS_Store
+__pycache__/
+*.pyc
+/build/
+/captures/
+.externalNativeBuild/
+.cxx/
+app/build/
+app/release/
+
+# Signing material and local secrets must never enter source control.
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+!security/PixelDrift-release-certificate.pem
+.env
+.env.*
+signing.properties
+keystore.properties
+
+# Local verification and release staging.
+/dist/
+/release-output/

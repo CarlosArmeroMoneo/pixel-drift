@@ -1,0 +1,60 @@
+name: Bug report
+description: Report a reproducible Pixel Drift problem without sharing sensitive artwork.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve Pixel Drift. Do not attach private artwork or signing files. For security vulnerabilities, use GitHub's private vulnerability reporting instead of a public issue.
+  - type: input
+    id: version
+    attributes:
+      label: Pixel Drift version
+      placeholder: 0.1.1
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and Android version
+      placeholder: Samsung Galaxy S24, Android 16
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: Artwork source
+      options:
+        - Built-in demo
+        - Static PNG sprite sheet
+        - Static WebP sprite sheet
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include grid, frame-count, FPS, and scale settings when relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed private artwork, credentials, and unrelated personal data from attachments.
+          required: true

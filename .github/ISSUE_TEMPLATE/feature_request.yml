@@ -1,0 +1,33 @@
+name: Feature request
+description: Suggest a focused improvement that preserves Pixel Drift's battery and privacy goals.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user need is not met today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: power
+    attributes:
+      label: Battery and privacy impact
+      description: Explain any new background work, decoding, storage, permission, or network behavior.
+    validations:
+      required: true
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Project constraints
+      options:
+        - label: This request can remain offline and avoid unnecessary Android permissions.
+          required: true

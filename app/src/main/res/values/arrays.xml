@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="fps_labels">
+        <item>Static</item>
+        <item>4 FPS</item>
+        <item>6 FPS</item>
+        <item>8 FPS</item>
+        <item>12 FPS</item>
+        <item>16 FPS</item>
+        <item>24 FPS</item>
+    </string-array>
+
+    <string-array name="scale_labels">
+        <item>Fit</item>
+        <item>Fill</item>
+        <item>Stretch</item>
+    </string-array>
+</resources>

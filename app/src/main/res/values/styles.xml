@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.PixelDrift" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowBackground">@drawable/bg_app</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:navigationBarColor">@color/night_deep</item>
+        <item name="android:statusBarColor">@color/night_deep</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowActionModeOverlay">true</item>
+    </style>
+
+    <style name="Text.PixelDrift.Heading" parent="@android:style/TextAppearance.Material.Title">
+        <item name="android:textColor">@color/ink</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Text.PixelDrift.Label" parent="@android:style/TextAppearance.Material.Body1">
+        <item name="android:textColor">@color/ink</item>
+    </style>
+
+    <style name="Text.PixelDrift.Support" parent="@android:style/TextAppearance.Material.Body2">
+        <item name="android:textColor">@color/ink_muted</item>
+    </style>
+
+    <style name="Widget.PixelDrift.Button" parent="@android:style/Widget.Material.Button">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+</resources>

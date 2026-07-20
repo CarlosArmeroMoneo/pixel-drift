@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Pixel Drift</string>
+    <string name="wallpaper_name">Pixel Drift wallpaper</string>
+    <string name="wallpaper_description">A battery-conscious animated pixel art live wallpaper.</string>
+    <string name="screen_title">Pixel Drift</string>
+    <string name="screen_subtitle">Tiny frames. Quiet power use.</string>
+
+    <string name="source_heading">Artwork source</string>
+    <string name="source_status_empty">Built-in demo is ready</string>
+    <string name="source_status_ready">Ready: %1$s</string>
+    <string name="source_support">Imports static PNG or WebP sprite sheets. Frames are read left-to-right, then top-to-bottom.</string>
+    <string name="import_artwork">Import artwork</string>
+    <string name="use_demo">Use demo</string>
+    <string name="import_picker_title">Choose pixel artwork</string>
+
+    <string name="animation_heading">Sprite sheet</string>
+    <string name="columns_label">Columns</string>
+    <string name="rows_label">Rows</string>
+    <string name="frame_count_label">Frames</string>
+    <string name="columns_default">1</string>
+    <string name="rows_default">1</string>
+    <string name="frame_count_default">1</string>
+    <string name="grid_hint">For a still image, leave all three values at 1.</string>
+
+    <string name="playback_heading">Playback and display</string>
+    <string name="fps_label">Frames per second</string>
+    <string name="scale_label">Scale</string>
+    <string name="background_color_label">Background color</string>
+    <string name="background_color_hint">#101018</string>
+    <string name="freeze_battery_saver">Freeze animation in Battery Saver</string>
+    <string name="freeze_battery_saver_summary">Shows one frame instead of waking the renderer repeatedly.</string>
+
+    <string name="save">Save</string>
+    <string name="preview_set">Preview / Set</string>
+    <string name="saved">Settings saved</string>
+    <string name="demo_ready">Demo artwork is ready</string>
+    <string name="import_complete">Artwork imported</string>
+    <string name="import_failed">Could not import artwork: %1$s</string>
+    <string name="demo_failed">Could not create demo artwork: %1$s</string>
+    <string name="document_picker_unavailable">No document picker is available</string>
+    <string name="wallpaper_picker_unavailable">The live wallpaper picker is unavailable</string>
+    <string name="invalid_number">Enter a whole number from %1$d to %2$d</string>
+    <string name="invalid_frame_count">Frames cannot exceed columns × rows</string>
+    <string name="invalid_grid_cells">The grid can contain at most 256 cells</string>
+    <string name="invalid_color">Use a color in #RRGGBB format</string>
+    <string name="settings_rejected">Could not save settings: %1$s</string>
+    <string name="settings_write_failed">Android could not persist the settings</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="working">Working…</string>
+</resources>

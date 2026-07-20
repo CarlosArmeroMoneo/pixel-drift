@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="360" viewBox="0 0 1280 360" role="img" aria-labelledby="title desc">
+  <title id="title">Pixel Drift</title>
+  <desc id="desc">Battery-conscious animated pixel art live wallpapers for Android.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#070814"/>
+      <stop offset="0.55" stop-color="#11152c"/>
+      <stop offset="1" stop-color="#15102a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2dd4bf"/>
+      <stop offset="0.5" stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#a855f7"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="360" rx="28" fill="url(#background)"/>
+  <g opacity="0.22" fill="#475569">
+    <rect x="70" y="60" width="16" height="16"/><rect x="102" y="60" width="16" height="16"/>
+    <rect x="102" y="92" width="16" height="16"/><rect x="134" y="92" width="16" height="16"/>
+    <rect x="1150" y="244" width="16" height="16"/><rect x="1118" y="276" width="16" height="16"/>
+    <rect x="1150" y="276" width="16" height="16"/><rect x="1182" y="276" width="16" height="16"/>
+  </g>
+  <g transform="translate(105 105)" shape-rendering="crispEdges">
+    <rect x="0" y="32" width="32" height="64" fill="#0f766e"/>
+    <rect x="32" y="0" width="64" height="32" fill="#14b8a6"/>
+    <rect x="32" y="32" width="96" height="96" fill="url(#accent)"/>
+    <rect x="0" y="96" width="32" height="32" fill="#2563eb"/>
+    <rect x="96" y="0" width="32" height="32" fill="#7c3aed"/>
+    <rect x="96" y="96" width="64" height="32" fill="#9333ea"/>
+    <rect x="64" y="64" width="32" height="32" fill="#f8fafc" opacity="0.9"/>
+  </g>
+  <text x="330" y="165" fill="#f8fafc" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="72" font-weight="800" letter-spacing="6">PIXEL DRIFT</text>
+  <text x="334" y="220" fill="#a7f3d0" font-family="system-ui, sans-serif" font-size="27" font-weight="600">Animated pixel art. Quiet power use.</text>
+  <text x="334" y="268" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="22">Offline • Native Android • No tracking • Bounded rendering</text>
+</svg>
