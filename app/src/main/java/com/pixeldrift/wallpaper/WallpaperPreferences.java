@@ -262,7 +262,7 @@ public final class WallpaperPreferences {
                     .putInt(KEY_APPLIED_SCHEMA, 1);
             putConfig(editor, PREFIX_SYSTEM, legacy, width, height);
             putConfig(editor, PREFIX_LOCK, legacy, width, height);
-            editor.commit();
+            editor.apply();
         }
     }
 
