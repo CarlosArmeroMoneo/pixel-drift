@@ -1,6 +1,6 @@
 package com.pixeldrift.wallpaper;
 
-import android.annotation.TargetApi;
+import android.annotation.RequiresApi;
 import android.app.wallpaper.WallpaperDescription;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -589,7 +589,7 @@ public final class PixelWallpaperService extends WallpaperService {
         }
     }
 
-    @TargetApi(34)
+    @RequiresApi(34)
     private class PixelEngineApi34 extends PixelEngine {
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
@@ -619,7 +619,7 @@ public final class PixelWallpaperService extends WallpaperService {
         }
     }
 
-    @TargetApi(36)
+    @RequiresApi(36)
     private final class PixelEngineApi36 extends PixelEngineApi34 {
         @Override
         public WallpaperDescription onApplyWallpaper(int which) {
